@@ -1,0 +1,206 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>Scan Product</title>
+  <style type="text/css">
+    .pagination{
+      float:right;
+    }
+    .pagination > ul > li{
+      border: 1px solid #DDDDDD;
+      border-radius: 3px;
+      float: left;
+      margin: 0 1px;
+      list-style: none;
+    }
+    .pagination > ul > li:hover{
+      background-color: #DDDDDD;
+    }
+    .pagination > ul > li.active{
+      background-color: #e9e9e9;
+    }
+    .pagination > ul > li > a{
+      display: inline-block;
+      padding: 5px 10px;
+      color: #797979;
+    }
+    #doSearchForAgent{
+      width: 200px;
+      border: 1px solid #AAAAAA;
+      border-radius: 3px;
+      padding: 5px;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      height: 167px;
+      overflow-y: auto;
+      position: absolute;
+      background-color: white;
+    }
+    #doSearchForAgent > span:hover{
+      background-color: #DDDDDD;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <div class="page-container">
+    <div id="main-content">
+      <div class="page-content">
+        <div class="row">
+          <div class="col-md-12">
+            <p class="block-web1">
+              <a href="../boss/boss.asp"><i class="fa fa-home" style="font-size:16px;"></i></a>
+              <i class="fa fa-angle-right" style="font-size:16px;"></i>掃描產品
+            </p>
+          </div>
+        </div>
+        <div id="mainDiv" class="row">
+          <audio id="success" src="../audio/success.wav"></audio>
+          <audio id="error" src="../audio/error.wav"></audio>
+          <div class="col-md-12">
+            <div class="block-web">
+              <div class="porlets-content">
+                <div class="adv-table editable-table">
+                  <div class="clearfix">
+                    <button class="delch btn btn-danger" v-on:click="multiDeleteData"><i class="fa fa-trash-o"></i>刪除勾選資料</a>
+                  </div>
+
+                  <div class="margin-top-10"><hr></div>
+                  <div class="porlets-content">
+                    <div class="table-responsive">
+                      <div class="row" style="margin-bottom: 10px;">
+                        <div class="col-md-3" style="display: flex;align-items: center;">
+                          <span>條碼：</span>
+                          <input v-model="scanningVal" v-on:keyup.enter="doScanning" style="border: 1px solid #CCCCCC;" type="text">
+                        </div>
+                        <div class="col-md-3" style="display: flex;align-items: center;">
+                          <span>品名：</span>
+                          <select v-model="p_id">
+                            <option value="">請選擇商品</option>
+                                <option value="<%= rsProduct("p_id") %>">維X炸X麵</option>
+                          </select>
+                        </div>
+                        <div class="col-md-3" style="display: flex;align-items: center;">
+                          <span>配送地區：</span>
+                          <input v-model="sendArea" style="border: 1px solid #CCCCCC;" type="text">
+                        </div>
+                      </div>
+                      <div class="row" style="margin-bottom: 10px;">
+                        <div class="col-md-3" style="display: flex;align-items: center;">
+                          <span>代理商編號：</span>
+                          <input v-model="m_username" style="border: 1px solid #CCCCCC;" type="text">
+                        </div>
+                        <div class="col-md-3" style="display: flex;align-items: center;">
+                          <span>授權編號：</span>
+                          <input v-model="p_autoNo" style="border: 1px solid #CCCCCC;" type="text">
+                        </div>
+                        <div class="col-md-3" style="display: flex;align-items: center;">
+                          <span>配貨日期：</span>
+                          <input v-model="sendDate" type="date" class="" style="border: 1px solid #CCCCCC;">
+                        </div>
+                      </div>
+                      <div class="row" style="margin-bottom: 10px;">
+                        <div class="col-md-5" style="display: flex;justify-content:space-between;align-items: center;">
+                          <span>日期區間：</span>
+                          <input v-model="dateStart" type="date" class="col-md-4 form-control editing" placeholder="開始日期" style="width: auto;border: 1px solid #CCCCCC;margin-top:3px"><span class="seltxt" style="width: auto;margin: auto 10px;margin-top:3px"> ~ </span>
+                          <input v-model="dateEnd" type="date" class="col-md-4 form-control editing" placeholder="結束日期" style="width: auto;border: 1px solid #CCCCCC;margin-top:3px">
+                          <button class="btn btn-primary" v-on:click="getData('doSearchDate',true)">日期搜尋</button>
+                          <button class="btn btn-primary" v-on:click="getData('showToday',true)">顯示今天</button>
+                        </div>
+                      </div>
+                      <div class="row" style="margin-bottom: 10px;display: flex;justify-content: space-between;align-items: center;width: 28%;">
+                        <span>搜尋：</span>
+                        <input type="text" v-model="searchCondition">
+                        <button class="btn btn-warning" v-on:click="getData('doSearch',true)">搜尋</button>
+                        <button class="btn btn-warning" v-on:click="getData('doSearchAll',true)">顯示全部</button>
+                      </div>
+                      <div class="row" style="margin-bottom: 10px;">
+                        <div class="col-md-12" style="display: flex;justify-content: space-between;">
+                          <div style="width: 62%;display: flex;justify-content: space-between;align-items: center;">
+                            <div style="display: flex;align-items: center;">
+                              <span>欲轉移產品的代理商編號：</span>
+                              <div>
+                                <input type="text" style="width: 200px;margin-bottom: 3px;" v-on:keyup="doSearchForAgent" v-on:focus="doSearchForAgent"v-on:blur="doSearchForAgentOffline" v-model="wantChangeProductAgent">
+                                <div id="doSearchForAgent" v-if="agentArrayRs.length > 0">
+                                  <span v-for="(result ,index) in agentArrayRs" v-text="result" v-on:click="changeWantChangeProductAgent(result)"></span>
+                                </div>
+                              </div>
+                            </div>
+                            <div>
+                              <span>下線代理商編號：</span>
+                              <select v-model="catchChangeProductAgent">
+                                <option value="">請選擇下線代理商</option>
+                                <option v-if="agentOfflineArray.length > 0" v-for="(result ,index) in agentOfflineArray" v-bind:value="result.m_username" v-text="(result.m_username)"></option>
+                              </select>
+                            </div>
+                            <button class="btn btn-warning" v-on:click="changeCheck">產品轉移審核</button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row" style="margin-bottom: 10px;">
+                        <div class="col-md-12" style="display: flex;justify-content: space-between;">
+                          <div>
+                            顯示筆數：
+                            <select v-model.number="countOfPage" v-on:change="getData('',true)" style="width: 65px;">
+                              <option value="25">25</option>
+                              <option value="50">50</option>
+                              <option value="100">100</option>
+                            </select>
+                          </div>
+                          <button class="btn btn-success" v-on:click="ExportCSV">匯出CSV</button>
+                        </div>
+                      </div>
+                      <table cellpadding="0" cellspacing="0" border="0" class="display table table-bordered">
+                        <thead>
+                          <tr>
+                            <th class="tbfirst"><input v-model="selectAll" v-on:change="selectAllFun" type="checkbox"></th>
+                            <th>條碼</th>
+                            <th>品名</th>
+                            <th class="hidden-xs">代理商編號</th>
+                            <th class="hidden-xs">授權編號</th>
+                            <th class="hidden-xs">配送日期</th>
+                            <th class="hidden-xs">配送地區</th>
+                          </tr>
+                        </thead>
+                        <tbody v-if="dataArray.length > 0" class="content">
+                          <tr v-for="(result ,index) in dataArray">
+                            <td class="tbfirst"><input type="checkbox" class="ckitems" v-model="ckitemsArray" v-bind:value="result.op_id"></td>
+                            <td width="10%" v-text="(result.op_barcode)"></td>
+                            <td width="28%" v-text="(result.p_title)"></td>
+                            <td class="hidden-xs" align="center" v-text="(result.m_username)"></td>
+                            <td class="hidden-xs" align="center" v-text="(result.p_autoNo)"></td>
+                            <td class="hidden-xs" align="center" v-text="(result.send_date)"></td>
+                            <td class="hidden-xs" align="center" v-text="(result.send_area)"></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <div class="row">
+                        <div class="col-md-12">
+                          <div class="pagination">
+                            <ul>
+                              <li v-bind:class="{'prev disabled': (currPage === 1)}"
+                                  @click.prevent="setPage(currPage-1)"><a href="#"> ← Previous</a></li>
+                              <li v-for="n in totalPage" v-if="n >= currPage-2"
+                                  v-bind:class="{'active': (currPage === (n))}"
+                                  @click.prevent="setPage(n)"><a href="#">{{n}}</a></li>
+                              <li v-bind:class="{'next disabled': (currPage === totalPage)}"
+                                  @click.prevent="setPage(currPage+1)"><a href="#">Next → </a></li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

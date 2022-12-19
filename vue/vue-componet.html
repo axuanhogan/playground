@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Vue.js</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <style type="text/css">
+      body {
+        padding:30px;
+      }
+      .tab-button {
+        padding: 6px 10px;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+        border: 1px solid #ccc;
+        cursor: pointer;
+        background: #f0f0f0;
+        margin-bottom: -1px;
+        margin-right: -1px;
+      }
+      .tab-button:hover {
+        background: #e0e0e0;
+      }
+      .tab-button.active {
+        background: #e0e0e0;
+      }
+      .tab {
+        border: 1px solid #ccc;
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body> 
+    <div id="div">
+
+      <button-counter></button-counter>
+
+      <hr />
+
+      文字大小：<input type="text" v-model="postFontSize">
+      <div :style="{ fontSize: postFontSize + 'em' }">
+        <blog-post v-for="post in posts" v-bind:key="post.id" v-bind:post="post" v-on:enlarge-text="postFontSize += 0.1" v-on:narrow-text="postFontSize -= 0.1"></blog-post>
+      </div>
+
+      <hr />
+
+      <div id="dynamic-component-demo" class="demo">
+        <button
+          v-for="tab in tabs"
+          v-bind:key="tab"
+          v-bind:class="['tab-button', { active: currentTab === tab }]"
+          v-on:click="currentTab = tab"
+        >{{ tab }}</button>
+
+        <component
+          v-bind:is="currentTabComponent"
+          class="tab"
+        ></component>
+      </div>
+
+      <hr />
+
+      <div>
+        <input type="text" v-model="date">
+        <test-data-transfer :date="date"></test-data-transfer>
+      </div>
+
+      <hr />
+
+      <div>
+        <counter v-for="counter in counters" :title="counter.title" :plus-btn-name="counter.plusBtnName" :minus-btn-name="counter.minusBtnName"></counter>
+      </div>
+
+    </div>
+    <!-- 引用Vue.js -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.js"></script>
+    <script src="vueComponent.js"></script>
+  </body>
+</html>
